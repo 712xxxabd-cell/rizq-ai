@@ -149,7 +149,7 @@ class ServicesPage extends StatelessWidget {
       ('كتابة وصف للمنتجات', 'كاتب محتوى', '3\$', Icons.description_outlined),
       ('ترجمة عربية - إنجليزية', 'مترجم', '5\$', Icons.translate),
     ];
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    runApp(const RizqAiApp());
       const Text('سوق الخدمات', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
       const SizedBox(height: 8), const Text('نماذج تجريبية لواجهة السوق.', style: TextStyle(color: Colors.white60)), const SizedBox(height: 16),
       ...data.map((s) => Card(margin: const EdgeInsets.only(bottom: 10), child: ListTile(leading: CircleAvatar(child: Icon(s.$4)), title: Text(s.$1), subtitle: Text('${s.$2} • ${s.$3}'), trailing: const Icon(Icons.chevron_left), onTap: () => showDialog<void>(context: context, builder: (_) => AlertDialog(title: Text(s.$1), content: Text('هذه بطاقة خدمة تجريبية بسعر يبدأ من ${s.$3}.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق'))]))))),
