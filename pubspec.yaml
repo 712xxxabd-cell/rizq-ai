@@ -1,5 +1,5 @@
 name: rizq_ai
-description: "رزق AI - تطبيق عربي تجريبي للذكاء الاصطناعي والخدمات."
+description: "رزق AI - الاصطناعي والخدمات"
 publish_to: "none"
 version: 1.0.0+1
 
@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
