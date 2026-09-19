@@ -1,93 +1,82 @@
-import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-void main() => runApp(const RizqAIApp());
+const String GEMINI_KEY = "AQ.Ab8RN6IA2MuK7aLDORr_zeBHV2..."; // <-- الصق مفتاحك الكامل هنا
 
-class RizqAIApp extends StatelessWidget {
-  const RizqAIApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0B1120),
-      ),
-      home: const AIHome(),
-    );
+void main() => runApp(const RizqSuperApp());
+
+class RizqSuperApp extends StatelessWidget {
+  const RizqSuperApp({super.key});
+  @override Widget build(BuildContext context) {
+    return MaterialApp(debugShowCheckedModeBanner: false, theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF0B1120)), home: const MainNav());
   }
 }
 
-class AIHome extends StatefulWidget {
-  const AIHome({super.key});
-  @override
-  State<AIHome> createState() => _AIHomeState();
-}
-
-class _AIHomeState extends State<AIHome> {
-  int nav = 0;
-  bool isGenerating = false;
-  String aiResult = "";
-  final List<String> ideas = [];
-
-  void generateIdea(String niche) async {
-    setState(() { isGenerating = true; aiResult = ""; });
-    await Future.delayed(const Duration(seconds: 2));
-    final results = {
-      "تصميم": "🎨 فكرة AI: صمم 10 لوجوهات بالذكاء الاصطناعي وبيع اللوجو بـ 15\$. ربح متوقع 450\$ شهرياً",
-      "كتابة": "✍️ فكرة AI: اكتب 20 مقال SEO بـ AI وبيعها بـ 8\$ للمقال",
-      "صور": "🖼️ فكرة AI: ولد صور جبال بالذكاء الاصطناعي وبيعها على Adobe Stock",
-    };
-    setState(() { isGenerating = false; aiResult = results[niche]!; ideas.add(aiResult); });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+class MainNav extends StatefulWidget { const MainNav({super.key}); @override State<MainNav> createState() => _MainNavState(); }
+class _MainNavState extends State<MainNav> {
+  int index = 0;
+  final pages = [const ChatPage(), const ImagePage(), const IdeaPage()];
+  @override Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: nav == 0? buildAI() : buildServices()),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: nav, onTap: (i) => setState(() => nav = i),
-        backgroundColor: const Color(0xFF151F32),
-        selectedItemColor: const Color(0xFF38BDF8), unselectedItemColor: Colors.white38,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.auto_awesome), label: 'AI رزق'),
-          BottomNavigationBarItem(icon: Icon(Icons.workspaces), label: 'الخدمات'),
-        ],
-      ),
-    );
-  }
-
-  Widget buildAI() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('رزق AI', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-        const Text('حول وقتك إلى عمل بمساعدة الذكاء الاصطناعي', style: TextStyle(color: Colors.white54)),
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity, padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: const Color(0xFF151F32), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3))),
-          child: Column(children: [
-            if (isGenerating) const CircularProgressIndicator(color: Color(0xFF38BDF8)),
-            if (aiResult.isNotEmpty) Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)), child: Text(aiResult)),
-            if (!isGenerating && aiResult.isEmpty) Row(children: [
-              Expanded(child: ElevatedButton(onPressed: () => generateIdea('تصميم'), child: const Text('تصميم'))),
-              const SizedBox(width: 10),
-              Expanded(child: ElevatedButton(onPressed: () => generateIdea('كتابة'), child: const Text('كتابة'))),
-            ]),
-            const SizedBox(height: 10),
-            if (!isGenerating) SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () => generateIdea('صور'), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF38BDF8)), child: const Text('توليد صور جبال ⛰️', style: TextStyle(color: Colors.black)))),
-            if (aiResult.isNotEmpty) ElevatedButton(onPressed: () => setState(() => aiResult = ""), child: const Text('فكرة أخرى ✨')),
-          ]),
-        ),
-        const SizedBox(height: 20),
-       ...ideas.reversed.map((e) => Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: const Color(0xFF151F32), borderRadius: BorderRadius.circular(14)), child: Text(e, style: const TextStyle(fontSize: 13)))),
+      body: pages[index],
+      bottomNavigationBar: BottomNavigationBar(currentIndex: index, onTap: (i)=>setState(()=>index=i), backgroundColor: const Color(0xFF151F32), selectedItemColor: const Color(0xFF38BDF8), items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'دردشة'),
+        BottomNavigationBarItem(icon: Icon(Icons.image), label: 'صور'),
+        BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'أفكار'),
       ]),
     );
   }
-
-  Widget buildServices() => ListView(padding: const EdgeInsets.all(16), children: const [
-    Text('خدمات مقترحة بالذكاء الاصطناعي', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-  ]);
 }
 
+class ChatPage extends StatefulWidget { const ChatPage({super.key}); @override State<ChatPage> createState() => _ChatPageState(); }
+class _ChatPageState extends State<ChatPage> {
+  final ctrl = TextEditingController(); List<Map> msgs = []; bool loading = false;
+  Future<void> send() async {
+    if(ctrl.text.isEmpty) return;
+    setState(()=> msgs.add({"role":"user","text":ctrl.text}));
+    String q = ctrl.text; ctrl.clear(); setState(()=> loading=true);
+    try{
+      final res = await http.post(Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_KEY'), headers: {'Content-Type':'application/json'}, body: jsonEncode({"contents":[{"parts":[{"text":q}]}]}));
+      String ans = jsonDecode(res.body)['candidates'][0]['content']['parts'][0]['text'];
+      setState(()=> msgs.add({"role":"ai","text":ans}));
+    }catch(e){ setState(()=> msgs.add({"role":"ai","text":"خطأ، تأكد من المفتاح"}));}
+    setState(()=> loading=false);
+  }
+  @override Widget build(BuildContext context) => SafeArea(child: Column(children: [
+    const Padding(padding: EdgeInsets.all(16), child: Text('رزق AI - دردشة', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
+    Expanded(child: ListView.builder(itemCount: msgs.length, itemBuilder: (c,i)=> Container(margin: const EdgeInsets.all(8), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: msgs[i]['role']=='user'? const Color(0xFF38BDF8).withValues(alpha:0.2) : const Color(0xFF151F32), borderRadius: BorderRadius.circular(12)), child: Text(msgs[i]['text'])))),
+    if(loading) const CircularProgressIndicator(),
+    Padding(padding: const EdgeInsets.all(8), child: Row(children: [Expanded(child: TextField(controller: ctrl, decoration: const InputDecoration(hintText: 'اسأل أي شيء...'))), IconButton(onPressed: send, icon: const Icon(Icons.send, color: Color(0xFF38BDF8)))]))
+  ]));
+}
+
+class ImagePage extends StatefulWidget { const ImagePage({super.key}); @override State<ImagePage> createState() => _ImagePageState(); }
+class _ImagePageState extends State<ImagePage> {
+  final ctrl = TextEditingController(); String? imgUrl; bool loading=false;
+  void gen(){ setState(()=> loading=true); String p = Uri.encodeComponent(ctrl.text); setState(()=> imgUrl = 'https://image.pollinations.ai/prompt/$p?width=512&height=512&seed=${DateTime.now().millisecondsSinceEpoch}'); Future.delayed(const Duration(seconds: 3), ()=> setState(()=> loading=false));}
+  @override Widget build(BuildContext context) => SafeArea(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+    const Text('مولد الصور بالذكاء الاصطناعي', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    TextField(controller: ctrl, decoration: const InputDecoration(hintText: 'مثال: جمل في حضرموت ليلا')),
+    const SizedBox(height: 12), ElevatedButton(onPressed: gen, child: const Text('ولد الصورة 🎨')),
+    const SizedBox(height: 16), if(loading) const CircularProgressIndicator(), if(imgUrl!=null &&!loading) Expanded(child: Image.network(imgUrl!)),
+  ])));
+}
+
+class IdeaPage extends StatefulWidget { const IdeaPage({super.key}); @override State<IdeaPage> createState() => _IdeaPageState(); }
+class _IdeaPageState extends State<IdeaPage> {
+  String idea = "اضغط الزر ليولد لك مشروع يمني مربح"; bool loading=false;
+  Future<void> genIdea() async {
+    setState(()=> loading=true);
+    try{
+      final res = await http.post(Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_KEY'), headers: {'Content-Type':'application/json'}, body: jsonEncode({"contents":[{"parts":[{"text":"اعطني فكرة مشروع صغير مربح لشاب في المكلا اليمن يربح من الذكاء الاصطناعي، مختصرة ومفيدة"}]}]}));
+      idea = jsonDecode(res.body)['candidates'][0]['content']['parts'][0]['text'];
+    }catch(e){ idea = "تأكد من المفتاح"; }
+    setState(()=> loading=false);
+  }
+  @override Widget build(BuildContext context) => SafeArea(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+    const Text('أفكار بزنس بالذكاء الاصطناعي', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+    const SizedBox(height: 20), Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFF151F32), borderRadius: BorderRadius.circular(16)), child: Text(idea)),
+    const SizedBox(height: 20), if(loading) const CircularProgressIndicator() else ElevatedButton(onPressed: genIdea, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF38BDF8)), child: const Text('ولد لي فكرة جديدة ✨', style: TextStyle(color: Colors.black))),
+  ])));
+}
