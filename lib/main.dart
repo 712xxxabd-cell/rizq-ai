@@ -90,3 +90,4 @@ class _AIHomeState extends State<AIHome> {
     Text('خدمات مقترحة بالذكاء الاصطناعي', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
   ]);
 }
+
